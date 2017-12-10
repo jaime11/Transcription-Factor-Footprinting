@@ -18,6 +18,7 @@
 #' @param upstream,downstream numeric(1) or integer(1).
 #'        Upstream and downstream of the binding region for
 #'        aggregate ATAC-seq footprint.
+#' @param deleteNoCoverageBindingSites Deletes binding sites without coverage (default) if TRUE.
 #' @importFrom stats cor.test
 #' @importFrom ChIPpeakAnno featureAlignedSignal reCenterPeaks
 #' @importFrom GenomicAlignments readGAlignments
@@ -54,7 +55,7 @@
 factorFootprints <- function(bamfiles, index=bamfiles, pfm, genome, 
                              min.score="95%", bindingSites,
                              seqlev=paste0("chr", c(1:22, "X", "Y")),
-                             upstream=100, downstream=100){
+                             upstream=100, downstream=100, deleteNoCoverageBindingSites=TRUE){
   #stopifnot(length(bamfiles)==4)
   stopifnot(is(genome, "BSgenome"))
   stopifnot(all(round(colSums(pfm), digits=4)==1))
@@ -117,7 +118,9 @@ factorFootprints <- function(bamfiles, index=bamfiles, pfm, genome,
   cvgSum <- cvgSum[seqlev]
   mt.s <- mt.s[seqlev]
   mt.v <- Views(cvgSum, mt.s)
-  mt.s <- mt.s[viewSums(mt.v)>0]
+  if(deleteNoCoverageBindingSites){ 
+  	mt.s <- mt.s[viewSums(mt.v)>0]
+  }
   mt <- unlist(mt.s)
   sigs <- featureAlignedSignal(cvglists=cvglist,
                               feature.gr=reCenterPeaks(mt, width=1),
