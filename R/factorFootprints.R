@@ -122,17 +122,19 @@ factorFootprints <- function(bamfiles, index=bamfiles, pfm, genome,
   	mt.s <- mt.s[viewSums(mt.v)>0]
   }
   mt <- unlist(mt.s)
+   # If the peaks have an even width, there are (width_motif/2) positions upstream covered by the motif but only (width_motif/2-1) downstream.
+   # If the peaks have an odd width, there are floor(width_motif/2) positions upstream and downstream, but in this case downstream specified = floor(width_motif/2)+1
   sigs <- featureAlignedSignal(cvglists=cvglist,
                               feature.gr=reCenterPeaks(mt, width=1),
                               upstream=upstream+floor(wid/2),
-                              downstream=downstream+ceiling(wid/2),
+                              downstream=downstream+ceiling(wid/2)-1,
                               n.tile=upstream+downstream+wid)
   cor <- lapply(sigs, function(sig){
       sig.colMeans <- colMeans(sig)
       ## calculate corelation of footprinting and binding score
       windows <- slidingWindows(IRanges(1, ncol(sig)), width = 10, step = 1)[[1]]
       # remove the windows with overlaps of motif binding region
-      windows <- windows[end(windows)<=upstream | start(windows)>=upstream+wid]
+      windows <- windows[end(windows)<=upstream | start(windows)>upstream+wid] # We don't include the last position of the motif
       sig.windowMeans <- viewMeans(Views(sig.colMeans, windows))
       windows.sel <- windows[which.max(sig.windowMeans)][1]
       highest.sig.windows <- 
