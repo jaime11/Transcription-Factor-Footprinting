@@ -155,7 +155,7 @@ factorFootprints <- function(bamfiles, index=bamfiles, pfm, genome,
 }
 
 pwm2pfm <- function(pfm, name="motif"){
-  if(!all(colSums(pfm)==1)){
+  if(!(all(colSums(pfm) < 1.0001) && all(colSums(pfm) > 0.9999))){
     return(NULL)
   }
   new("pfm", mat=as.matrix(pfm), name=name)
