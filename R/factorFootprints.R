@@ -55,7 +55,7 @@
 factorFootprints <- function(bamfiles, index=bamfiles, pfm, genome, 
                              min.score="95%", bindingSites,
                              seqlev=paste0("chr", c(1:22, "X", "Y")),
-                             upstream=100, downstream=100, deleteNoCoverageBindingSites=TRUE){
+                             upstream=100, downstream=100, deleteNoCoverageBindingSites=TRUE){  
   #stopifnot(length(bamfiles)==4)
   stopifnot(is(genome, "BSgenome"))
   stopifnot(all(round(colSums(pfm), digits=4)==1))
@@ -146,7 +146,7 @@ factorFootprints <- function(bamfiles, index=bamfiles, pfm, genome,
   })
   sigs <- lapply(sigs, function(.ele) .ele[mt$userdefined, ])
   mt <- mt[mt$userdefined]
-  mt$userdefined <- NULL
+  mt$userdefined <- NULL  
   plotFootprints(colMeans(do.call(cbind, sigs)),
                  Mlen=wid, motif=pwm2pfm(pfm))
   return(invisible(list(signal=sigs, 
